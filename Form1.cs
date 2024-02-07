@@ -79,7 +79,7 @@ namespace satellite
 
             List<Satellite> newSatellites = new List<Satellite>(m_Satellites);
 
-            for(int a = 0; a < m_Satellites.Count; a++)
+            for (int a = 0; a < m_Satellites.Count; a++)
             {
                 Satellite satA = m_Satellites[a];
                 for (int b = 0; b < m_Satellites.Count; b++)
@@ -89,24 +89,50 @@ namespace satellite
                     if (satA == satB)
                         continue;
 
-                    // Vector von der Erde zum Satteliten
                     Vect2D rV = satA.VectBetweenObjects(satB);
 
                     double r = rV.GetR(); // Abstand  Erde Sattelit
-                    
-                    // Einheitsvektor
+
+                    if (r < satA.Radius + satB.Radius)
+                        continue;
+
+
                     rV = rV.ScalarMult(1 / r);
 
-                    Vect2D acc = rV.ScalarMult(-Par.G * 1E11 / (r * r));
+                    if (r < 1)
+                        r = 1;
 
-                    satB.m_V += acc; 
+
+                    Vect2D acc = rV.ScalarMult(-Par.G * 1E13 / (r * r * 0.2));
+
+                    satB.m_V += acc;
                 }
             }
 
-            foreach(Satellite satellite in newSatellites)
+
+            /*for (int a = 0; a < m_Satellites.Count; a++)
+            {
+                Satellite satA = m_Satellites[a];
+                for (int b = a; b < m_Satellites.Count; b++)
+                {
+                    Satellite satB = newSatellites[b];
+
+                    double r = satA.VectBetweenObjects(satB).GetR();
+
+                    if (r < satA.Radius + satB.Radius)
+                    {
+                        satA.m_V = satA.m_V.GetOppositeDirection();
+                        satB.m_V = satB.m_V.GetOppositeDirection();
+                    }
+                }
+            }*/
+
+
+            foreach (Satellite satellite in newSatellites)
             {
                 satellite.IntegratePosition();
             }
+
 
             m_Satellites = newSatellites;
         }
